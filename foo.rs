@@ -2,10 +2,12 @@ use libc::c_char;
 use std::ffi;
 use std::str;
 use std::vec;
+use std::mem;
+
+extern crate libc;
 
 struct TokenCollection {
-	parts: Vec<&str>,
-	name: &str
+	parts: Vec<&str>
 }
 
 impl TokenCollection {
@@ -28,14 +30,14 @@ impl TokenCollection {
 
 fn c_str_to_slice(c_str: *mut c_char) -> &str {
 	let c_bytes = unsafe { ffi::c_str_to_bytes(&c_str); };
-	std::from_utf8(c_bytes).unwrap()
+	str::from_utf8(c_bytes).unwrap()
 }
 
 #[no_mangle]
 pub extern fn token_collection_create(c_str: *mut c_char) -> *mut TokenCollection {
 	let str = c_str_to_slice(c_str);
 
-	unsafe { transmute(box TokenCollection::new(str)) }
+	unsafe { mem::transmute(Box::new(TokenCollection::new(str))) }
 }
 
 #[no_mangle]
@@ -46,5 +48,5 @@ pub extern fn token_collection_len(pimpl: *mut TokenCollection) -> libc::uint64_
 #[no_mangle]
 pub extern fn token_collection_destroy(pimpl: *mut TokenCollection) {
 
-	let _drop_me = unsafe { transmute(box TokenCollection::new(str)) };
+	let _drop_me = unsafe { mem::transmute(Box::new(pimpl)) };
 }
