@@ -3,6 +3,7 @@ use std::ffi;
 use std::str;
 use std::vec;
 use std::mem;
+use std::boxed::Box;
 
 extern crate libc;
 
@@ -48,5 +49,5 @@ pub extern fn token_collection_len(pimpl: *mut TokenCollection) -> libc::uint64_
 #[no_mangle]
 pub extern fn token_collection_destroy(pimpl: *mut TokenCollection) {
 
-	let _drop_me = unsafe { mem::transmute(Box::new(pimpl)) };
+	let _drop_me = unsafe { Box::from_raw(pimpl) };
 }
